@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+.env/
+
+# System files
+.DS_Storegi
+
+# Logs / temporary files
+*.log
+*.tmp
+
+# Data or checkpoints
+data/
+checkpoints/
+outputs/
+
+# custom
+dependencies/
