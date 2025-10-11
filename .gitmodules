@@ -1,0 +1,6 @@
+[submodule "dependencies/uwm"]
+	path = dependencies/uwm
+	url = https://github.com/WEIRDLabUW/unified-world-model
+[submodule "dependencies/SpaTrackerV2"]
+	path = dependencies/SpaTrackerV2
+	url = https://github.com/kksham111/SpaTrackerV2
