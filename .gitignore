@@ -19,5 +19,7 @@ checkpoints/
 outputs/
 
 # custom
-dependencies/
-workspace/output/
+dependencies/SpaTrackerV2_old
+dependencies/uniVLA
+dependencies/UVA
+results/output
