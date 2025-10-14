@@ -16,10 +16,13 @@ __pycache__/
 # Data or checkpoints
 data/
 checkpoints/
-outputs/
+
 
 # custom
 dependencies/SpaTrackerV2_old
 dependencies/uniVLA
 dependencies/UVA
-results/output
+results/
+workspace
+
+.vscode/
