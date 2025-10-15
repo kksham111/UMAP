@@ -16,6 +16,9 @@ __pycache__/
 # Data or checkpoints
 data/
 checkpoints/
+*.npz
+*.mp4
+*.npz
 
 
 # custom
@@ -23,6 +26,5 @@ dependencies/SpaTrackerV2_old
 dependencies/uniVLA
 dependencies/UVA
 results/
-workspace
-
-.vscode/
+workspace/
+.vscode/launch.json

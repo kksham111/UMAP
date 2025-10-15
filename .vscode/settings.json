@@ -1,0 +1,10 @@
+{
+    "cursor.general.disableHttp2": true,
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/dependencies",
+        "${workspaceFolder}/src/scripts"
+    ],
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${workspaceFolder}/dependencies:${workspaceFolder}/src/scripts:${env:PYTHONPATH}"
+    }
+}
