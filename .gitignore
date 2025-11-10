@@ -25,6 +25,8 @@ checkpoints/
 dependencies/SpaTrackerV2_old
 dependencies/uniVLA
 dependencies/UVA
+dependencies/TraceAnything
 results/
 workspace/
 .vscode/launch.json
+src/scripts/SpaTrackerV2/get_track3d_libero_old.py

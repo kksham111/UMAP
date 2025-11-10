@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "SpaTrackerV2 Inference (cuda:4)",
+        "type": "python",
+        "request": "launch",
+        "program": "/mnt/homes/jialin-ldap/UMAP/src/scripts/SpaTrackerV2/inference_libero.py",
+        "args": [
+          "--device", "cuda:5",
+          "--data_type", "RGB",
+          "--data_dir", "/mnt/homes/jialin-ldap/UMAP/data/LIBERO/libero_10_videos_25fps/liber_o10-train.tfrecord-00025-of-00032",
+          "--video_name", "video_0000",
+          "--fps", "10",
+          "--out_dir", "/mnt/homes/jialin-ldap/UMAP/workspace/output/SpaTracker_output"
+        ],
+        "cwd": "/mnt/homes/jialin-ldap/UMAP",
+        "console": "integratedTerminal",
+        "justMyCode": false,
+        "env": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      }
+    ]
+  }

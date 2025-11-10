@@ -1,10 +1,27 @@
 {
     "cursor.general.disableHttp2": true,
     "python.analysis.extraPaths": [
-        "${workspaceFolder}/dependencies",
-        "${workspaceFolder}/src/scripts"
+        "${workspaceFolder}/dependencies/SpaTrackerV2",
+        "${workspaceFolder}/src/scripts/SpaTrackerV2"
     ],
     "terminal.integrated.env.linux": {
-        "PYTHONPATH": "${workspaceFolder}/dependencies:${workspaceFolder}/src/scripts:${env:PYTHONPATH}"
+        "PYTHONPATH": "${workspaceFolder}/dependencies/SpaTrackerV2:${workspaceFolder}/src/scripts/SpaTrackerV2:${env:PYTHONPATH}"
+    },
+    "cursorpyright.analysis.extraPaths": [
+        "${workspaceFolder}/dependencies/SpaTrackerV2",
+        "${workspaceFolder}/src/scripts/SpaTrackerV2"
+    ],
+    "remote.extensionKind": {
+        "pub.name": [
+            "ui"
+        ],
+        "GitHub.copilot": [
+            "ui",
+            "workspace"
+        ],
+        "GitHub.copilot-chat": [
+            "ui",
+            "workspace"
+        ]
     }
 }

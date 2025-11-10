@@ -28,7 +28,7 @@ def parse_args():
     parser.add_argument("--data_type", type=str, default="RGBD")
     parser.add_argument("--data_dir", type=str, default="assets/example0")
     parser.add_argument("--video_name", type=str, default="snowboard")
-    parser.add_argument("--grid_size", type=int, default=100)
+    parser.add_argument("--grid_size", type=int, default=20)
     parser.add_argument("--vo_points", type=int, default=756)
     parser.add_argument("--fps", type=int, default=1)
     parser.add_argument("--out_dir", type=str, default="results", help="Output directory relative to data_dir")
