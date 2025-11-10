@@ -13,6 +13,7 @@ import moviepy as mp
 from models.SpaTrackV2.utils.visualizer import Visualizer
 import tqdm
 from models.SpaTrackV2.models.utils import get_points_on_a_grid
+from models.SpaTrackV2.models.tracker3D.spatrack_modules.utils import set_procrustes_context
 import glob
 from rich import print
 import argparse
@@ -251,6 +252,10 @@ def model_inference(video_path, data_dir, video_name, args, model, vggt4track_mo
     
     query_xyt = torch.cat([torch.zeros_like(grid_pts[:, :, :1]), grid_pts], dim=2)[0].numpy()
     
+    # 设置Procrustes上下文（用于记录不满足条件的旋转矩阵）
+    log_file_path = os.path.join(output_directory_for_video, "procrustes_problematic_rotations.txt")
+    set_procrustes_context(log_file=log_file_path, video_name=video_name)
+    
     # 模型推理
     with amp_ctx:
         (
@@ -392,7 +397,37 @@ if __name__ == "__main__":
             
             # 保存NPZ文件
             frame_stride = int(args.frame_stride)
-            save_npz(results, save_path, frame_stride, results["video_fps"])
+            if args.save_format == "zarr":
+                save_zarr(results, save_path, frame_stride, results["video_fps"])
+            else:
+                save_npz(results, save_path, frame_stride, results["video_fps"])
+            
+            # 汇总有问题的视频名（如果有日志文件）
+            log_file_path = os.path.join(output_directory_for_video, "procrustes_problematic_rotations.txt")
+            if os.path.exists(log_file_path):
+                # 提取视频名并保存到汇总文件
+                summary_file = os.path.join(args.output_dir, "procrustes_problematic_videos_summary.txt")
+                try:
+                    with open(log_file_path, 'r') as f:
+                        content = f.read()
+                        # 提取所有视频名
+                        import re
+                        video_names = re.findall(r'=== Video: (.+?) ===', content)
+                        if video_names:
+                            # 读取已存在的汇总文件内容（如果存在）
+                            existing_videos = set()
+                            if os.path.exists(summary_file):
+                                with open(summary_file, 'r') as summary_f:
+                                    existing_videos = set(line.strip() for line in summary_f if line.strip())
+                            
+                            # 追加新的视频名
+                            with open(summary_file, 'a') as summary_f:
+                                for vname in video_names:
+                                    if vname not in existing_videos:
+                                        summary_f.write(f"{vname}\n")
+                                        existing_videos.add(vname)
+                except Exception as e:
+                    pass  # 忽略汇总错误，不影响主流程
             
             # 关键：删除results中的GPU tensor引用，释放GPU内存
             # 注意：save_npz()中已经将数据转换为numpy，所以可以安全删除tensor

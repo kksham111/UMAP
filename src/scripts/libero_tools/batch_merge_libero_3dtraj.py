@@ -82,8 +82,8 @@ def collect_3d_trajectories(traj_root, task_name):
     从 3D 轨迹目录中收集所有 demo 的 coords 数据。
     
     目录结构预期：
-    traj_root/task_name/demo_0/video_*.npz
-    traj_root/task_name/demo_1/video_*.npz
+    traj_root/task_name/demo_0.npz 或 demo_0_data.npz
+    traj_root/task_name/demo_1.npz 或 demo_1_data.npz
     ...
     
     返回格式: {
@@ -100,16 +100,42 @@ def collect_3d_trajectories(traj_root, task_name):
         print(f"WARNING: Trajectory task directory not found: {task_dir}")
         return traj_data
     
-    # 遍历所有 demo_* 子目录
-    demo_dirs = sorted(task_dir.glob("demo_*"), key=lambda x: int(x.name.split('_')[1]))
+    # 查找所有 demo_*.npz 文件（支持两种格式）
+    npz_files = list(task_dir.glob("demo_*.npz"))
     
-    for demo_dir in demo_dirs:
-        demo_key = demo_dir.name  # 例如 'demo_0'
+    if not npz_files:
+        print(f"  WARNING: No demo_*.npz files found in {task_dir}")
+        return traj_data
+    
+    # 排序：从文件名中提取 demo 编号
+    def extract_demo_number(path):
+        stem = path.stem  # 例如 'demo_0' 或 'demo_0_data'
+        parts = stem.split('_')
+        # 提取第一个数字部分
+        for part in parts[1:]:  # 跳过 'demo'
+            if part.isdigit():
+                return int(part)
+        return 0
+    
+    npz_files = natsorted(npz_files, key=lambda x: extract_demo_number(x))
+    
+    for npz_file in npz_files:
+        # 从文件名提取 demo_key，例如 'demo_0_data.npz' -> 'demo_0'
+        stem = npz_file.stem  # 例如 'demo_0' 或 'demo_0_data'
+        if stem.endswith('_data'):
+            demo_key = stem[:-5]  # 去掉 '_data' 后缀
+        else:
+            demo_key = stem  # 保持原样
         
         try:
-            # 加载该 demo 的所有 video npz 文件并拼接
-            traj_array = load_and_concatenate_npz(demo_dir)
-            traj_data[demo_key] = traj_array
+            # 直接加载该 demo 的 npz 文件
+            data = np.load(npz_file)
+            if 'coords' in data.files:
+                traj_array = data['coords']
+                traj_data[demo_key] = traj_array
+            else:
+                print(f"  WARNING: 'coords' key not found in {npz_file.name}. Skipping this file.")
+                continue
         except Exception as e:
             print(f"  WARNING: Could not load 3d_traj for {demo_key} in {task_name}: {e}")
             continue
