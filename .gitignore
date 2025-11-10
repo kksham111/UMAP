@@ -22,10 +22,12 @@ checkpoints/
 
 
 # custom
+.sii/
 dependencies/SpaTrackerV2_old
 dependencies/uniVLA
 dependencies/UVA
 dependencies/TraceAnything
+dependencies/LIBERO
 results/
 workspace/
 .vscode/launch.json
