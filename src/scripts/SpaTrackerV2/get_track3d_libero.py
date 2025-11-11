@@ -13,7 +13,7 @@ import moviepy as mp
 from models.SpaTrackV2.utils.visualizer import Visualizer
 import tqdm
 from models.SpaTrackV2.models.utils import get_points_on_a_grid
-from models.SpaTrackV2.models.tracker3D.spatrack_modules.utils import set_procrustes_context
+from models.SpaTrackV2.models.tracker3D.spatrack_modules.utils import set_video_name
 import glob
 from rich import print
 import argparse
@@ -23,6 +23,57 @@ from models.SpaTrackV2.models.vggt4track.utils.load_fn import preprocess_image
 from models.SpaTrackV2.models.vggt4track.utils.pose_enc import pose_encoding_to_extri_intri
 from contextlib import nullcontext
 import traceback
+import logging
+import warnings
+from datetime import datetime
+
+def setup_logging(output_dir):
+    """
+    设置日志记录，同时输出到控制台和文件
+    
+    Args:
+        output_dir: 输出目录，日志文件将保存在此目录
+    
+    Returns:
+        logger: 日志记录器对象
+        log_file_path: 日志文件路径
+    """
+    # 创建日志文件路径
+    log_file_path = os.path.join(output_dir, f"run_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+    
+    # 配置 logging
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)  # 设置根日志级别为DEBUG，以便捕获所有信息
+    
+    # 清除已有的处理器（避免重复添加）
+    logger.handlers.clear()
+    
+    # 文件处理器（所有级别）
+    file_handler = logging.FileHandler(log_file_path, encoding='utf-8')
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_formatter)
+    
+    # 控制台处理器（INFO及以上级别）
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    
+    # 添加处理器
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    # 配置 warnings 模块，将警告重定向到 logging
+    logging.captureWarnings(True)
+    
+    # 设置 warnings 的格式
+    warnings.formatwarning = lambda message, category, filename, lineno, line=None: \
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - WARNING - {message}\n"
+    
+    logger.info(f"Logging initialized. Log file: {log_file_path}")
+    
+    return logger, log_file_path
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -252,9 +303,8 @@ def model_inference(video_path, data_dir, video_name, args, model, vggt4track_mo
     
     query_xyt = torch.cat([torch.zeros_like(grid_pts[:, :, :1]), grid_pts], dim=2)[0].numpy()
     
-    # 设置Procrustes上下文（用于记录不满足条件的旋转矩阵）
-    log_file_path = os.path.join(output_directory_for_video, "procrustes_problematic_rotations.txt")
-    set_procrustes_context(log_file=log_file_path, video_name=video_name)
+    # 设置视频名称（用于在强制正交化时打印视频名称）
+    set_video_name(video_name)
     
     # 模型推理
     with amp_ctx:
