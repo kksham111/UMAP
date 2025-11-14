@@ -1,0 +1,40 @@
+_target_: datasets.utils.mixture.make_robot_video_mixture_dataset
+name: droid_webvideo
+shape_meta: &shape_meta
+  obs:
+    "exterior_image_1_left": &camera_meta
+      shape: [180, 320, 3]
+      type: rgb
+    "exterior_image_2_left": *camera_meta
+    "wrist_image_left": *camera_meta
+    "cartesian_position":
+      shape: [6]
+      type: low_dim
+    "gripper_position":
+      shape: [1]
+      type: low_dim
+  action:
+    shape: [10]
+robot_train_val_sets:
+  _target_: datasets.droid.make_droid_dataset
+  name: droid
+  buffer_path: /tmp/weirdlab/zchuning/data/droid/buffer.zarr
+  shape_meta: *shape_meta
+  seq_len: ${num_frames}
+  history_len: ${obs_num_frames}
+  normalize_action: True
+  normalize_lowdim: True
+  val_ratio: 0.05
+video_train_val_sets:
+  _target_: datasets.webvideo.make_multiview_video_dataset
+  name: webvideo
+  index_paths: [
+    /gscratch/weirdlab/zchuning/data/k400_filtered.txt,
+    /gscratch/weirdlab/zchuning/data/ssv2_filtered.txt,
+  ]
+  shape_meta: *shape_meta
+  seq_len: ${num_frames}
+  obs_padding: "same"
+  frame_skip: 2
+  val_ratio: 0.05
+balance_datasets: False

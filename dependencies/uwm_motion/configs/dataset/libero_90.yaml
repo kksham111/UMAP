@@ -1,0 +1,7 @@
+defaults:
+  - template_libero
+  - _self_
+
+name: libero_90
+hdf5_path_globs: /mnt/homes/jialin-ldap/UMAP/data/LIBERO/libero_90/*.hdf5
+buffer_path: /mnt/homes/jialin-ldap/UMAP/workspace/output/uwm_training_output/libero_90/buffer.zarr

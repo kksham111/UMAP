@@ -1,0 +1,7 @@
+defaults:
+  - template_libero
+  - _self_
+
+name: libero_cheese_butter
+hdf5_path_globs: /home/ubuntu/LIBERO/libero/datasets/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket_demo.hdf5
+buffer_path: /home/ubuntu/LIBERO/libero/datasets/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket_demo.zarr

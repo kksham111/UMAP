@@ -1,0 +1,6 @@
+defaults:
+  - dataset: droid
+  - model: dp
+  - template_train
+  - template_dp
+  - _self_

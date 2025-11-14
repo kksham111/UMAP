@@ -1,0 +1,30 @@
+hydra:
+  run:
+    dir: logdir/${algo}/${dataset.name}/${exp_id}/${seed}
+
+algo: ${hydra:runtime.choices.model}
+exp_id: default
+seed: 0
+logdir: ${hydra:run.dir}
+resume: False
+use_amp: False
+eval_task_name: ${dataset.name}
+pretrain_checkpoint_path: null
+
+num_steps: 100000
+eval_every: 10000
+save_every: 10000
+
+batch_size: 36
+num_frames: 19
+obs_num_frames: 2
+clip_grad_norm: null
+
+optimizer:
+  lr: 1e-4
+  weight_decay: 1e-6
+  betas: [0.9, 0.999]
+  eps: 1e-8
+
+scheduler:
+  name: "constant"

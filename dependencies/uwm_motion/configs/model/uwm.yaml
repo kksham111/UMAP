@@ -1,0 +1,32 @@
+_target_: models.uwm.UnifiedWorldModel
+action_len: 16
+action_dim: ${dataset.shape_meta.action.shape[0]}
+obs_encoder:
+  _target_: models.uwm.UWMObservationEncoder
+  shape_meta: ${dataset.shape_meta}
+  num_frames: ${obs_num_frames}
+  embed_dim: 768  
+  resize_shape: [240, 320]
+  crop_shape: [224, 224]
+  random_crop: True
+  color_jitter:
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: [-0.2, 0.2]
+  imagenet_norm: False
+  vision_backbone: resnet
+  use_low_dim: False
+  use_language: False
+embed_dim: 768
+timestep_embed_dim: 512
+latent_patch_shape: [2, 4, 4]
+depth: 12
+num_heads: 12
+mlp_ratio: 4
+qkv_bias: True
+num_registers: 8
+num_train_steps: 100
+num_inference_steps: 10
+beta_schedule: squaredcos_cap_v2
+clip_sample: True

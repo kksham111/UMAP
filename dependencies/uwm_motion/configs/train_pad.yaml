@@ -1,0 +1,5 @@
+defaults:
+  - dataset: droid
+  - model: pad
+  - template_train
+  - _self_

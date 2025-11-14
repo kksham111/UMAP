@@ -1,0 +1,3 @@
+defaults:
+  - template_robomimic
+  - _self_

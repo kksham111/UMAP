@@ -1,0 +1,21 @@
+_target_: dependencies.uwm.datasets.robomimic.make_robomimic_dataset
+name: libero_90_motion
+hdf5_path_globs: /mnt/homes/jialin-ldap/UMAP/workspace/output/libero_hdf5_merged/libero_90_test/*.hdf5
+buffer_path: /mnt/homes/jialin-ldap/UMAP/workspace/output/uwm_training_output/libero_90_motion/buffer.zarr
+# normalize_action: true
+
+shape_meta:
+  obs:
+    agentview_rgb: &camera_meta
+      shape: [128, 128, 3]
+      type: rgb
+    eye_in_hand_rgb: *camera_meta
+  action:
+    shape: [7]
+  traj3d:
+    shape: [400, 3]
+
+seq_len: ${num_frames}
+val_ratio: 0.05
+subsample_ratio: 1.0
+flip_rgb: True

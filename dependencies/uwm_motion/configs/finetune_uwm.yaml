@@ -1,0 +1,5 @@
+defaults:
+  - dataset: droid
+  - model: uwm
+  - template_finetune
+  - _self_

@@ -1,0 +1,5 @@
+defaults:
+  - dataset: libero_90
+  - model: pad
+  - template_train_robomimic
+  - _self_

@@ -1,0 +1,16 @@
+_target_: datasets.robomimic.make_robomimic_dataset
+name: libero_book_caddy 
+hdf5_path_globs: /home/ubuntu/LIBERO/libero/datasets/libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy_demo.hdf5
+buffer_path: /home/ubuntu/LIBERO/libero/datasets/libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy_demo.zarr
+shape_meta:
+  obs:
+    agentview_rgb: &camera_meta
+      shape: [128, 128, 3]
+      type: rgb
+    eye_in_hand_rgb: *camera_meta
+  action:
+    shape: [7] # pos + quarternion + gripper
+seq_len: ${num_frames}
+val_ratio: 0.05
+subsample_ratio: 1.0
+flip_rgb: True

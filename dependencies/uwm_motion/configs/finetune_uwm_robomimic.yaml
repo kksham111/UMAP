@@ -1,0 +1,8 @@
+defaults:
+  - dataset: libero_book_caddy
+  - model: uwm
+  - template_finetune_robomimic
+  - _self_
+
+model:
+  num_registers: 24

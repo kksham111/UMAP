@@ -1,0 +1,35 @@
+_target_: models.gr1.GR1
+action_len: 16
+action_dim: ${dataset.shape_meta.action.shape[0]}
+obs_encoder:
+  _target_: models.gr1.GR1ObservationEncoder
+  shape_meta: ${dataset.shape_meta}
+  num_frames: ${obs_num_frames}
+  embed_dim: 768  
+  resize_shape: [240, 320]
+  crop_shape: [224, 224]
+  random_crop: True
+  color_jitter:
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: [-0.2, 0.2]
+  imagenet_norm: True
+  resampler_params:
+    dim: 768
+    depth: 3
+    dim_head: 128
+    heads: 4
+    num_latents: 9
+    num_media_embeds: 1
+embed_dim: 768
+image_size: 224
+patch_size: 32
+depth: 12
+num_heads: 12
+mlp_ratio: 4
+qkv_bias: True
+decoder_depth: 3
+decoder_num_heads: 16
+decoder_mlp_ratio: 4
+decoder_qkv_bias: True

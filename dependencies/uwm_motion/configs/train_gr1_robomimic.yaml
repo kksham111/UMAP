@@ -1,0 +1,5 @@
+defaults:
+  - dataset: libero_90
+  - model: gr1
+  - template_train_robomimic
+  - _self_

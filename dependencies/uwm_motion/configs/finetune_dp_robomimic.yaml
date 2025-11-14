@@ -1,0 +1,6 @@
+defaults:
+  - dataset: libero_book_caddy
+  - model: dp
+  - template_finetune_robomimic
+  - template_dp
+  - _self_

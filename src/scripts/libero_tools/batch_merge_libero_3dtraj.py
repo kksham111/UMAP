@@ -178,11 +178,11 @@ def merge_single_task(source_hdf5, traj_root, task_name, output_hdf5):
                     actions = src_demo['actions'][:]
                     dst_demo.create_dataset('actions', data=actions)
                 
-                # 3. 添加 3d_traj 数据
+                # 3. 添加 traj3d 数据
                 if demo_key in traj_data:
-                    dst_demo.create_dataset('3d_traj', data=traj_data[demo_key])
+                    dst_demo.create_dataset('traj3d', data=traj_data[demo_key])
                 else:
-                    print(f"  WARNING: No 3d_traj data found for {demo_key}")
+                    print(f"  WARNING: No traj3d data found for {demo_key}")
 
 
 def batch_merge(libero_root, traj_root, output_root):

@@ -1,0 +1,5 @@
+defaults:
+  - dataset: droid
+  - model: gr1
+  - template_finetune
+  - _self_
