@@ -1,5 +1,5 @@
 [submodule "dependencies/uwm_motion"]
-	path = dependencies/uwm
+	path = dependencies/uwm_motion
 	url = https://github.com/kksham111/unified-world-model
 [submodule "dependencies/SpaTrackerV2"]
 	path = dependencies/SpaTrackerV2
