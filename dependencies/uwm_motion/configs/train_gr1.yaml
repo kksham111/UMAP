@@ -1,5 +1,0 @@
-defaults:
-  - dataset: droid
-  - model: gr1
-  - template_train
-  - _self_

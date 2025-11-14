@@ -1,6 +1,0 @@
-defaults:
-  - dataset: droid
-  - model: dp
-  - template_finetune
-  - template_dp
-  - _self_

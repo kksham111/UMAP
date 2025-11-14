@@ -1,7 +1,0 @@
-defaults:
-  - template_libero
-  - _self_
-
-name: libero_bowl_drawer
-hdf5_path_globs: /home/ubuntu/LIBERO/libero/datasets/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it_demo.hdf5
-buffer_path: /home/ubuntu/LIBERO/libero/datasets/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it_demo.zarr

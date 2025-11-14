@@ -1,7 +1,0 @@
-defaults:
-  - template_libero
-  - _self_
-
-name: libero_mug_pudding
-hdf5_path_globs: /home/ubuntu/LIBERO/libero/datasets/libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate_demo.hdf5
-buffer_path: /home/ubuntu/LIBERO/libero/datasets/libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate_demo.zarr

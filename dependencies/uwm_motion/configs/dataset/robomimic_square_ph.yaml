@@ -1,7 +1,0 @@
-defaults:
-  - template_robomimic
-  - _self_
-
-name: robomimic_square_ph
-hdf5_path_globs: /home/ubuntu/robomimic/datasets/square/ph/image_v141.hdf5
-buffer_path: /home/ubuntu/robomimic/datasets/square/ph/image_v141.zarr

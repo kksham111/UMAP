@@ -1,5 +1,0 @@
-defaults:
-  - dataset: droid
-  - model: uwm
-  - template_train
-  - _self_

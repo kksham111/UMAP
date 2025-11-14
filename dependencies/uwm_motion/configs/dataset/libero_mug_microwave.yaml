@@ -1,7 +1,0 @@
-defaults:
-  - template_libero
-  - _self_
-
-name: libero_mug_microwave
-hdf5_path_globs: /home/ubuntu/LIBERO/libero/datasets/libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it_demo.hdf5
-buffer_path: /home/ubuntu/LIBERO/libero/datasets/libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it_demo.zarr

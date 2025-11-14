@@ -1,8 +1,0 @@
-defaults:
-  - dataset: libero_90
-  - model: uwm
-  - template_train_robomimic
-  - _self_
-
-model:
-  num_registers: 24

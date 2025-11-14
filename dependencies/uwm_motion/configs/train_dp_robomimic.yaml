@@ -1,6 +1,0 @@
-defaults:
-  - dataset: libero_90
-  - model: dp
-  - template_train_robomimic
-  - template_dp
-  - _self_

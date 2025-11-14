@@ -1,5 +1,0 @@
-defaults:
-  - dataset: libero_book_caddy
-  - model: gr1
-  - template_finetune_robomimic
-  - _self_
