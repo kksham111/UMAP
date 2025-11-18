@@ -11,15 +11,12 @@ def parse_args():
     parser.add_argument("--hdf5_file", type=str, default=None, help="单个 HDF5 文件路径（与 --hdf5_root 互斥）")
     parser.add_argument("--output_dir", type=str, required=True, help="输出 MP4 目录")
     parser.add_argument("--fps", type=int, default=10, help="输出视频帧率")
-    parser.add_argument(
-        "--obs_keys",
-        type=str,
-        nargs="+",
-        default=["agentview_rgb"],
-        help="需要导出的视频观测键（agentview_rgb 和 eye_in_hand_rgb）",
-    )
+    parser.add_argument("--obs_keys", type=str, nargs="+", default=["agentview_rgb"], 
+                        help="需要导出的视频观测键（agentview_rgb 和 eye_in_hand_rgb）")
     parser.add_argument("--max_files", type=int, default=None,
                         help="最多转换的 HDF5 文件数量（默认全部转换，仅对 --hdf5_root 模式有效）")
+    parser.add_argument("--frame_stride", type=int, default=1,
+                        help="每多少帧取一帧生成新的视频。")
     return parser.parse_args()
 
 def save_video(frames: np.ndarray, out_path: Path, fps: int):
@@ -39,7 +36,7 @@ def save_video(frames: np.ndarray, out_path: Path, fps: int):
         for frame in frames:
             writer.append_data(frame)
 
-def process_hdf5(hdf5_path: Path, output_root: Path, fps: int, obs_keys=None):
+def process_hdf5(hdf5_path: Path, output_root: Path, fps: int, obs_keys=None, frame_stride: int = 1):
     with h5py.File(hdf5_path, "r") as f:
         demos_group = f["data"]
         demo_names = sorted(demos_group.keys())
@@ -50,7 +47,7 @@ def process_hdf5(hdf5_path: Path, output_root: Path, fps: int, obs_keys=None):
             for key in keys_to_dump:
                 if key not in obs_group:
                     continue
-                frames = obs_group[key][:]  # [T, H, W, C]
+                frames = obs_group[key][::frame_stride]  # [T, H, W, C]
                 
                 # Create a directory for the task (named after the HDF5 file)
                 task_dir = output_root / f"{hdf5_path.stem}"
@@ -83,7 +80,7 @@ def main():
         if args.max_files is not None:
             print("警告：--max_files 参数在单文件模式下无效，已忽略")
         print(f"处理单个 HDF5 文件: {hdf5_path}")
-        process_hdf5(hdf5_path, output_root, args.fps, args.obs_keys)
+        process_hdf5(hdf5_path, output_root, args.fps, args.obs_keys, args.frame_stride)
         print("全部完成")
         return
     
@@ -106,7 +103,7 @@ def main():
 
     print(f"共找到 {len(hdf5_files)} 个 hdf5 文件")
     for hdf5_path in hdf5_files:
-        process_hdf5(hdf5_path, output_root, args.fps, args.obs_keys)
+        process_hdf5(hdf5_path, output_root, args.fps, args.obs_keys, args.frame_stride)
 
     print("全部完成")
 
