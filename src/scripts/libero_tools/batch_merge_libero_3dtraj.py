@@ -5,7 +5,8 @@
 python batch_merge_libero_3dtraj.py \
   --libero_root /path/to/libero_90_test \
   --traj_root /path/to/3dtraj/libero_90_test \
-  --output_root /path/to/output/libero_90_test
+  --output_root /path/to/output/libero_90_test \
+  --frame_stride 3
 """
 
 import argparse
@@ -64,17 +65,22 @@ def load_and_concatenate_npz(traj_dir):
     return concatenated
 
 
-def copy_obs_recursively(src_obs_group, dst_demo):
+def copy_obs_recursively(src_obs_group, dst_demo, frame_stride=1):
     """
-    递归复制 obs 组中的所有数据集和子组。
+    递归复制 obs 组中的所有数据集和子组，并应用帧步长切片。
     """
     for key in src_obs_group.keys():
         src_item = src_obs_group[key]
         if isinstance(src_item, h5py.Dataset):
-            dst_demo.create_dataset(key, data=src_item[:])
+            # 优化：先读取全部数据到内存，再切片。
+            # 直接对 HDF5 Dataset 进行 strided slice (src_item[::frame_stride]) 
+            # 在数据被压缩或 chunk 分布不均时会导致极其低效的 I/O。
+            # LIBERO 单个 demo 数据量通常较小（几十MB），完全可以读入内存以获得顺序读取的高性能。
+            data = src_item[:]
+            dst_demo.create_dataset(key, data=data[::frame_stride])
         elif isinstance(src_item, h5py.Group):
             sub_group = dst_demo.create_group(key)
-            copy_obs_recursively(src_item, sub_group)
+            copy_obs_recursively(src_item, sub_group, frame_stride)
 
 
 def collect_3d_trajectories(traj_root, task_name):
@@ -143,7 +149,7 @@ def collect_3d_trajectories(traj_root, task_name):
     return traj_data
 
 
-def merge_single_task(source_hdf5, traj_root, task_name, output_hdf5):
+def merge_single_task(source_hdf5, traj_root, task_name, output_hdf5, frame_stride=1):
     """
     合并单个任务的 HDF5 和 3D 轨迹数据。
     分别调用两个收集函数，然后合并生成新的 HDF5。
@@ -163,29 +169,50 @@ def merge_single_task(source_hdf5, traj_root, task_name, output_hdf5):
             # 获取所有 demo 键并排序
             demo_keys = sorted(src_data_group.keys(), key=lambda x: int(x.split('_')[1]))
             
-            for demo_key in demo_keys:
+            for demo_key in tqdm(demo_keys, desc=f"  Processing demos for {task_name}", leave=False):
                 src_demo = src_data_group[demo_key]
                 dst_demo = dst_data_group.create_group(demo_key)
                 
-                # 1. 复制 obs 数据
+                # 1. 复制 obs 数据 (应用抽帧)
                 if 'obs' in src_demo:
                     src_obs = src_demo['obs']
                     dst_obs = dst_demo.create_group('obs')
-                    copy_obs_recursively(src_obs, dst_obs)
+                    copy_obs_recursively(src_obs, dst_obs, frame_stride)
                 
-                # 2. 复制 actions 数据
+                # 2. 复制 actions 数据 (应用抽帧)
                 if 'actions' in src_demo:
-                    actions = src_demo['actions'][:]
+                    # 同样优化：先读入内存再切片
+                    actions_data = src_demo['actions'][:]
+                    actions = actions_data[::frame_stride]
                     dst_demo.create_dataset('actions', data=actions)
                 
-                # 3. 添加 traj3d 数据
+                # 3. 添加 traj3d 数据并验证一致性
                 if demo_key in traj_data:
-                    dst_demo.create_dataset('traj3d', data=traj_data[demo_key])
+                    traj3d_data = traj_data[demo_key]
+                    
+                    # 获取 actions 或 obs 的帧数进行验证
+                    if 'actions' in dst_demo:
+                        hdf5_frames = dst_demo['actions'].shape[0]
+                    else:
+                        # 如果没有 actions，尝试从 obs 中获取第一项的帧数
+                        first_obs_key = list(dst_demo['obs'].keys())[0]
+                        hdf5_frames = dst_demo['obs'][first_obs_key].shape[0]
+                    
+                    traj3d_frames = traj3d_data.shape[0]
+                    
+                    if hdf5_frames != traj3d_frames:
+                        print(f"  ERROR: Frame count mismatch for {demo_key} in {task_name}!")
+                        print(f"         HDF5 (strided): {hdf5_frames}, Traj3D: {traj3d_frames}")
+                        print(f"         Skipping traj3d for this demo to avoid data inconsistency.")
+                        # 可以选择在这里抛出异常或者只是跳过 traj3d
+                        # raise ValueError(f"Frame mismatch in {demo_key}")
+                    else:
+                        dst_demo.create_dataset('traj3d', data=traj3d_data)
                 else:
                     print(f"  WARNING: No traj3d data found for {demo_key}")
 
 
-def batch_merge(libero_root, traj_root, output_root):
+def batch_merge(libero_root, traj_root, output_root, frame_stride=1):
     """
     批量处理所有任务。
     """
@@ -203,7 +230,7 @@ def batch_merge(libero_root, traj_root, output_root):
         output_hdf5 = output_root / hdf5_file.name
         
         try:
-            merge_single_task(str(hdf5_file), str(traj_root), task_name, str(output_hdf5))
+            merge_single_task(str(hdf5_file), str(traj_root), task_name, str(output_hdf5), frame_stride)
         except Exception as e:
             print(f"ERROR processing {task_name}: {e}")
 
@@ -215,6 +242,7 @@ def main():
     parser.add_argument("--libero_root", type=str, required=True, help="LIBERO HDF5 文件所在目录")
     parser.add_argument("--traj_root", type=str, required=True, help="3D 轨迹数据所在根目录")
     parser.add_argument("--output_root", type=str, required=True, help="输出合并后 HDF5 文件的根目录")
+    parser.add_argument("--frame_stride", type=int, default=1, help="抽帧步长，默认为 1 (不抽帧)")
     
     args = parser.parse_args()
     
@@ -226,7 +254,7 @@ def main():
     if not traj_root.exists():
         raise FileNotFoundError(f"Trajectory root not found: {traj_root}")
     
-    batch_merge(args.libero_root, args.traj_root, args.output_root)
+    batch_merge(args.libero_root, args.traj_root, args.output_root, args.frame_stride)
     print("\nBatch merge completed!")
 
 

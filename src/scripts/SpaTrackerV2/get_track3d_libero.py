@@ -13,7 +13,7 @@ import moviepy as mp
 from models.SpaTrackV2.utils.visualizer import Visualizer
 import tqdm
 from models.SpaTrackV2.models.utils import get_points_on_a_grid
-from models.SpaTrackV2.models.tracker3D.spatrack_modules.utils import set_video_name
+# from models.SpaTrackV2.models.tracker3D.spatrack_modules.utils import set_video_name
 import glob
 from rich import print
 import argparse
@@ -83,7 +83,7 @@ def parse_args():
     parser.add_argument("--output_dir", type=str, default="results", help="Base output directory.")
     parser.add_argument("--grid_size", type=int, default=20)
     parser.add_argument("--vo_points", type=int, default=756)
-    parser.add_argument("--frame_stride", type=int, default=2, help="抽帧步长")
+    parser.add_argument("--frame_stride", type=int, default=1, help="抽帧步长")
     parser.add_argument("--device", type=str, default="cuda:0", help="Device to run on, e.g., cuda:4 or cpu")
     parser.add_argument("--enable_viz", action="store_true", help="启用可视化输出MP4视频")
     return parser.parse_args()
@@ -303,9 +303,6 @@ def model_inference(video_path, data_dir, video_name, args, model, vggt4track_mo
     
     query_xyt = torch.cat([torch.zeros_like(grid_pts[:, :, :1]), grid_pts], dim=2)[0].numpy()
     
-    # 设置视频名称（用于在强制正交化时打印视频名称）
-    set_video_name(video_name)
-    
     # 模型推理
     with amp_ctx:
         (
@@ -447,10 +444,7 @@ if __name__ == "__main__":
             
             # 保存NPZ文件
             frame_stride = int(args.frame_stride)
-            if args.save_format == "zarr":
-                save_zarr(results, save_path, frame_stride, results["video_fps"])
-            else:
-                save_npz(results, save_path, frame_stride, results["video_fps"])
+            save_npz(results, save_path, frame_stride, results["video_fps"])
             
             # 汇总有问题的视频名（如果有日志文件）
             log_file_path = os.path.join(output_directory_for_video, "procrustes_problematic_rotations.txt")
