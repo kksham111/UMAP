@@ -57,8 +57,6 @@ HYDRA_FULL_ERROR=1 NCCL_DEBUG=INFO \
 python experiments/uwm/train_robomimic.py \
     --config-name train_uwm_robomimic.yaml \
     dataset=libero_90 \
-    exp_id=pretrain_5_offline \
-    num_workers=4 \
-    persistent_workers=False
+    exp_id=pretrain_5_offline 
 
 echo ">>> Training script finished."
