@@ -4,63 +4,50 @@
 set -e
 
 # ================= 配置区域 =================
-# 定义基础路径，方便修改
+# 定义基础路径
 BASE_HDD="/inspire/hdd/project/robot-body/yanglixin-p-yanglixin/jialin"
 BASE_SSD="/inspire/ssd/project/robot-body/yanglixin-p-yanglixin/jialin"
 CONDA_PATH="${BASE_HDD}/miniconda3"
 
+# 预训练模型路径 (请修改为您真实的 .pt 文件路径)
+# 例如: 
+PRETRAIN_CKPT="${BASE_HDD}/UMAP/workspace/logs/uwm/libero_90/pretrain_6_offline/0/models.pt"
+
 # ================= 1. 环境初始化 =================
 echo ">>> Initializing Conda..."
-# 在脚本中激活 conda 需要先 source conda.sh
 source "${CONDA_PATH}/etc/profile.d/conda.sh"
 conda activate uwm
 
 # ================= 2. 设置环境变量 =================
 echo ">>> Exporting Environment Variables..."
 
-# 强制设置单机训练的主节点地址
+# 强制设置单机训练的主节点地址 (防止 NCCL 连错 IP)
 export MASTER_ADDR=localhost
-export MASTER_PORT=29500
+export MASTER_PORT=29501  # 使用不同端口，避免和训练任务冲突
 
-# 日志目录 (建议：如果 HDD 写入太慢导致卡顿，可以考虑改到 SSD)
 export LOG_DIR="${BASE_HDD}/UMAP/workspace/logs"
-
-# 数据集路径
 export LIBERO_ROOT="/inspire/hdd/project/robot-body/public/jltian/libero_data"
-
-# 缓存/Buffer 路径 (SSD)
 export LIBERO_BUFFER_ROOT="${BASE_SSD}/data/uwm_offline"
-
-# Python 路径
 export PYTHONPATH="${BASE_HDD}/UMAP/dependencies/uwm_motion:$PYTHONPATH"
-
-# 强制 WandB 离线 (防止网络问题导致训练卡住)
 export WANDB_MODE=offline
-
-# 解决 HuggingFace 连接问题 (使用离线模式，前提是模型已下载)
 export HF_HUB_OFFLINE=1
 
 # ================= 3. 准备工作 =================
-# 切换到工作目录
 WORK_DIR="${BASE_HDD}/UMAP/dependencies/uwm_motion"
 cd "${WORK_DIR}"
 echo ">>> Working Directory: $(pwd)"
 
-# 清理可能残留的僵尸进程 (可选，防止上次训练的 worker 没关掉)
-echo ">>> Cleaning up potential zombie processes..."
-pkill -f train_robomimic.py || true
+# ================= 4. 开始微调 =================
+echo ">>> Starting Finetuning..."
 
-# ================= 4. 开始训练 =================
-echo ">>> Starting Training..."
-
-# 之前的诊断建议：
-# 为了防止 NCCL Timeout 和内存泄漏，建议在参数中显式添加 num_workers 和 persistent_workers 设置
-# 如果您已经在 yaml 里改好了，可以去掉下面的 overrides
+# 注意：如果您的环境是 4机8卡(32 GPU)，这里必须设置 batch_size=4 以保持 Global Batch Size 合理
+# 如果是 1机4卡，可以去掉 batch_size=4 或者设为 36
 
 HYDRA_FULL_ERROR=1 NCCL_DEBUG=INFO \
 python experiments/uwm/train_robomimic.py \
-    --config-name train_uwm_robomimic.yaml \
-    dataset=libero_90 \
-    exp_id=pretrain_6_offline \
+    --config-name finetune_uwm_robomimic.yaml \
+    dataset=libero_book_caddy \
+    exp_id=finetune_test \
+    pretrain_checkpoint_path="${PRETRAIN_CKPT}"
 
-echo ">>> Training script finished."
+echo ">>> Finetuning script finished."
